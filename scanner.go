@@ -95,6 +95,8 @@ func (s Scanner) scanToken() {
 		s.scanString()
 	case isDigit(char):
 		s.scanNumber()
+	case isAlpha(char):
+		s.scanIdentifier()
 	default:
 		errMsg := fmt.Sprintf("unexpected char: %v", char)
 		s.addError(errMsg)
@@ -151,6 +153,21 @@ func (s Scanner) scanNumber() {
 		return
 	}
 	s.addToken(Number, value)
+}
+
+func (s Scanner) scanIdentifier() {
+	for char := s.peek(); isAlphaNumeric(char); {
+		s.advance()
+	}
+
+	value := string(s.source[s.start:s.current])
+
+	if tokentype, ok := keywords[value]; ok {
+		s.addToken(tokentype, value)
+		return
+	}
+
+	s.addToken(Identifier, value)
 }
 
 func (s Scanner) reachedEnd() bool {
